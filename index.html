@@ -2,113 +2,168 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>우리들의 시크릿 게임존</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>양지마을 게임장</title>
     <style>
-        /* 디자인 시스템 */
+        /* 네온 테마 디자인 */
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: #050505;
+            color: #fff;
             font-family: 'Pretendard', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
 
-        .container {
-            background: #1e293b;
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        .game-box {
+            background: rgba(20, 20, 20, 0.9);
+            padding: 40px;
+            border-radius: 30px;
+            border: 2px solid #00f2ff;
+            box-shadow: 0 0 20px #00f2ff, inset 0 0 10px #00f2ff;
             text-align: center;
-            width: 350px;
-            border: 1px solid #334155;
+            width: 380px;
+            position: relative;
         }
 
-        h1 { color: #38bdf8; margin-bottom: 1.5rem; }
+        h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #00f2ff;
+            text-shadow: 0 0 10px #00f2ff;
+            margin-bottom: 30px;
+        }
+
+        .input-group { margin-bottom: 20px; }
 
         input {
+            background: transparent;
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            padding: 15px;
+            color: #fff;
             width: 80%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            margin-bottom: 1rem;
-            background: #334155;
-            color: white;
-            font-size: 1.1rem;
-            text-align: center;
+            font-size: 1.2rem;
+            outline: none;
+            box-shadow: 0 0 5px #ff00ff;
         }
 
         button {
-            background: #38bdf8;
-            color: #0f172a;
+            background: #ff00ff;
             border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
+            padding: 12px 30px;
+            border-radius: 10px;
+            color: white;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
+            margin-top: 10px;
+            box-shadow: 0 0 15px #ff00ff;
+            transition: 0.3s;
         }
 
-        button:hover { transform: scale(1.05); background: #7dd3fc; }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px #ff00ff;
+        }
 
         #message {
-            margin-top: 1.5rem;
-            font-weight: 500;
-            min-height: 24px;
+            margin-top: 25px;
+            font-size: 1.1rem;
+            min-height: 1.5em;
         }
 
-        .count { color: #94a3b8; font-size: 0.9rem; margin-top: 10px; }
+        /* 랭킹 섹션 */
+        .ranking-section {
+            margin-top: 30px;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+
+        .best-score {
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 0 0 5px #ffd700;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>🎮 Guess Num!</h1>
-    <p>1부터 100 사이의 숫자를 맞춰봐!</p>
+<div class="game-box">
+    <h1>양지마을 게임장</h1>
+    <p>1 ~ 100 사이의 숫자를 맞춰라!</p>
     
-    <input type="number" id="guessInput" placeholder="숫자 입력..." min="1" max="100">
-    <br>
-    <button onclick="checkGuess()">정답 확인</button>
+    <div class="input-group">
+        <input type="number" id="guessInput" placeholder="숫자 입력..." onkeypress="if(event.keyCode==13) checkGuess()">
+    </div>
+    <button onclick="checkGuess()">ENTER</button>
 
-    <div id="message"></div>
-    <div class="count">시도 횟수: <span id="attempts">0</span></div>
-    <button onclick="resetGame()" style="margin-top:20px; background:#475569; color:white; font-size:0.8rem;">다시 시작</button>
+    <div id="message">준비됐나요?</div>
+    
+    <div class="ranking-section">
+        <div>현재 시도: <span id="currentAttempts">0</span>회</div>
+        <div>🏆 역대 최고 기록: <span id="bestScore" class="best-score">-</span>회</div>
+    </div>
+
+    <button onclick="resetGame()" style="background: #444; box-shadow: none; font-size: 0.8rem; margin-top: 30px;">기록 초기화 & 다시 시작</button>
 </div>
 
 <script>
     let targetNumber = Math.floor(Math.random() * 100) + 1;
     let attempts = 0;
+    
+    // 로컬 스토리지에서 최고 기록 불러오기
+    let best = localStorage.getItem('bestScore') || Infinity;
+    if (best !== Infinity) {
+        document.getElementById('bestScore').innerText = best;
+    }
 
     function checkGuess() {
-        const guess = document.getElementById('guessInput').value;
+        const input = document.getElementById('guessInput');
+        const guess = parseInt(input.value);
         const message = document.getElementById('message');
-        const attemptsDisplay = document.getElementById('attempts');
+        const currentDisplay = document.getElementById('currentAttempts');
 
-        if (!guess) return;
+        if (isNaN(guess) || guess < 1 || guess > 100) {
+            message.innerText = "1에서 100 사이 숫자를 써줘!";
+            return;
+        }
 
         attempts++;
-        attemptsDisplay.innerText = attempts;
+        currentDisplay.innerText = attempts;
 
-        if (guess == targetNumber) {
-            message.innerHTML = "🎉 정답이야! 대단한데?";
-            message.style.color = "#4ade80";
+        if (guess === targetNumber) {
+            message.innerHTML = `🎉 정답! <b>${attempts}번</b>만에 맞췄어!`;
+            message.style.color = "#00f2ff";
+            saveScore(attempts);
         } else if (guess > targetNumber) {
-            message.innerHTML = "👇 더 낮은 숫자야!";
-            message.style.color = "#fb7185";
+            message.innerText = "📉 더 낮게!";
+            message.style.color = "#ff00ff";
         } else {
-            message.innerHTML = "👆 더 높은 숫자야!";
-            message.style.color = "#fb7185";
+            message.innerText = "📈 더 높게!";
+            message.style.color = "#ff00ff";
+        }
+        input.value = "";
+        input.focus();
+    }
+
+    function saveScore(score) {
+        if (score < best) {
+            best = score;
+            localStorage.setItem('bestScore', best);
+            document.getElementById('bestScore').innerText = best;
+            alert("✨ 축하해! 새로운 기록이야!");
         }
     }
 
     function resetGame() {
-        targetNumber = Math.floor(Math.random() * 100) + 1;
-        attempts = 0;
-        document.getElementById('attempts').innerText = attempts;
-        document.getElementById('message').innerText = "";
-        document.getElementById('guessInput').value = "";
+        if(confirm("기록을 지우고 다시 시작할까?")) {
+            localStorage.removeItem('bestScore');
+            location.reload();
+        }
     }
 </script>
 
