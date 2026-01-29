@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>우리들의 시크릿 게임존</title>
+    <style>
+        /* 디자인 시스템 */
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Pretendard', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 350px;
+            border: 1px solid #334155;
+        }
+
+        h1 { color: #38bdf8; margin-bottom: 1.5rem; }
+
+        input {
+            width: 80%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 1rem;
+            background: #334155;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        button {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover { transform: scale(1.05); background: #7dd3fc; }
+
+        #message {
+            margin-top: 1.5rem;
+            font-weight: 500;
+            min-height: 24px;
+        }
+
+        .count { color: #94a3b8; font-size: 0.9rem; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎮 Guess Num!</h1>
+    <p>1부터 100 사이의 숫자를 맞춰봐!</p>
+    
+    <input type="number" id="guessInput" placeholder="숫자 입력..." min="1" max="100">
+    <br>
+    <button onclick="checkGuess()">정답 확인</button>
+
+    <div id="message"></div>
+    <div class="count">시도 횟수: <span id="attempts">0</span></div>
+    <button onclick="resetGame()" style="margin-top:20px; background:#475569; color:white; font-size:0.8rem;">다시 시작</button>
+</div>
+
+<script>
+    let targetNumber = Math.floor(Math.random() * 100) + 1;
+    let attempts = 0;
+
+    function checkGuess() {
+        const guess = document.getElementById('guessInput').value;
+        const message = document.getElementById('message');
+        const attemptsDisplay = document.getElementById('attempts');
+
+        if (!guess) return;
+
+        attempts++;
+        attemptsDisplay.innerText = attempts;
+
+        if (guess == targetNumber) {
+            message.innerHTML = "🎉 정답이야! 대단한데?";
+            message.style.color = "#4ade80";
+        } else if (guess > targetNumber) {
+            message.innerHTML = "👇 더 낮은 숫자야!";
+            message.style.color = "#fb7185";
+        } else {
+            message.innerHTML = "👆 더 높은 숫자야!";
+            message.style.color = "#fb7185";
+        }
+    }
+
+    function resetGame() {
+        targetNumber = Math.floor(Math.random() * 100) + 1;
+        attempts = 0;
+        document.getElementById('attempts').innerText = attempts;
+        document.getElementById('message').innerText = "";
+        document.getElementById('guessInput').value = "";
+    }
+</script>
+
+</body>
+</html>
